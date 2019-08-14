@@ -32,7 +32,7 @@ def main(args):
         return 4
 
     docker_compose_contents, env_variables = process_edx_compose(
-        edx_compose_contents
+        edx_compose_contents, get_default_edx_compose()
     )
     try:
         with open('docker-compose.yml', 'w') as f:
@@ -45,18 +45,35 @@ def main(args):
             f.write("{}={}\n".format(key, value))
 
 
-def process_edx_compose(edx_compose):
+def process_edx_compose(edx_compose, default_edx_compose):
 
     docker_compose = collections.OrderedDict({})
     docker_compose["version"] = "3"
     docker_compose["services"] = []
 
+    ports = default_edx_compose['ports'].copy()
+    ports.update(edx_compose.get('ports', {}))
     env_variables = {
         "OPENEDX_{}_PORT".format(service.upper().replace("-", "_")): port_number
-        for service, port_number in edx_compose['ports'].items()
+        for service, port_number in ports.items()
     }
 
+    image_version = edx_compose.get(
+        'image_version', default_edx_compose['image_version']
+    )
+    env_variables.update(OPENEDX_IMAGE_VERSION=image_version)
+
+    project_name = edx_compose.get(
+        'project_name', default_edx_compose['project_name']
+    )
+    env_variables.update(COMPOSE_PROJECT_NAME=project_name)
+
     return docker_compose, env_variables
+
+
+def get_default_edx_compose():
+    with open('defaults.edx-compose.yml', 'r') as f:
+        return yaml.safe_load(f)
 
 
 def force_pyyaml_to_preserve_dict_order():
