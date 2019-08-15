@@ -84,11 +84,8 @@ services:
       sleep 2; done'
     depends_on:
       - mysql
-      - devpi
-      - memcached
       - mongo
-      - firefox
-      - chrome
+      - memcached
       - discovery
     environment:
       BOK_CHOY_HOSTNAME: lms
@@ -113,11 +110,8 @@ services:
       sleep 2; done'
     depends_on:
       - mysql
-      - devpi
       - memcached
       - mongo
-      - firefox
-      - chrome
     ports:
       - "${OPENEDX_STUDIO_PORT}:${OPENEDX_STUDIO_PORT}"
       - "19877:19877" # JS test debugging
