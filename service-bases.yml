@@ -23,6 +23,7 @@ services:
       NO_PYTHON_UNINSTALL: 1
 
   _registrar_service:
+    extends: _webservice
     environment:
       DB_HOST: mysql
       DB_NAME: registrar
