@@ -1,0 +1,29 @@
+
+version: "2.1"
+
+services:
+  
+  _webservice:
+    stdin_open: true
+    tty: true
+    environment:
+      LMS_BASE_URL: "http://localhost:${OPENEDX_LMS_PORT}/"
+      STUDIO_BASE_URL: "http://localhost:${OPENEDX_STUDIO_PORT}/"
+      DISCOVERY_BASE_URL: "http://localhost:${OPENEDX_DISCOVERY_PORT}/"
+      REGISTRAR_BASE_URL: "http://localhost:${OPENEDX_REGISTRAR_PORT}/"
+
+  _edxapp_service:
+    extends: _webservice
+    image: edxops/edxapp:${OPENEDX_IMAGE_VERSION}
+    environment:
+      BOK_CHOY_HOSTNAME: studio
+      BOK_CHOY_LMS_PORT: 18103
+      BOK_CHOY_CMS_PORT: 18131
+      EDXAPP_TEST_MONGO_HOST: mongo
+      NO_PYTHON_UNINSTALL: 1
+
+  _microfrontend:
+    command: bash -c 'npm install && npm run start'
+    image: node:10
+    environment:
+      NODE_ENV: development

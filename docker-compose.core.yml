@@ -1,7 +1,7 @@
 # This file contains all of the services for an edX installation. See https://docs.docker.com/compose/compose-file/
 # for the appropriate syntax and definitions.
 
-version: "2.4"
+version: "2.1"
 
 services:
 
@@ -44,9 +44,11 @@ services:
     image: memcached:1.4.24
 
   mongo:
-    # We use WiredTiger in all environments. In development environments we use small files
-    # to conserve disk space, and disable the journal for a minor performance gain.
-    # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options for complete details.
+    # We use WiredTiger in all environments. In development environments we use
+    # small files# to conserve disk space, and disable the journal for a minor
+    # performance gain.
+    # See https://docs.mongodb.com/v3.0/reference/program/mongod/#options
+    # for complete details.
     command: mongod --smallfiles --nojournal --storageEngine wiredTiger
     image: mongo:3.2.16
     volumes:
@@ -67,46 +69,26 @@ services:
     ports:
       - "${OPENEDX_REDIS_PORT}:${OPENEDX_REDIS_PORT}"
 
-
   ###################################################
   # EDX SERVICES
   ###################################################
 
-  _webservice:
-    stdin_open: true
-    tty: true
-    depends_on:
-      - mysql
-    environment:
-      LMS_BASE_URL=http://${OPENEDX_LMS_PORT}/
-      STUDIO_BASE_URL=http://${OPENEDX_STUDIO_PORT}/
-      DISCOVERY_BASE_URL=http://${OPENEDX_DISCOVERY_PORT}/
-      REGISTRAR_BASE_URL=http://${OPENEDX_REGISTRAR_PORT}/
-
-  _edxapp_service:
-    extends: _webservice
-    image: edxops/edxapp:${OPENEDX_IMAGE_VERSION}
-    depends_on:
-      - devpi
-      - memcached
-      - mongo
-      - firefox
-      - chrome
-    environment:
-      BOK_CHOY_HOSTNAME: studio
-      BOK_CHOY_LMS_PORT: 18103
-      BOK_CHOY_CMS_PORT: 18131
-      EDXAPP_TEST_MONGO_HOST: mongo
-      NO_PYTHON_UNINSTALL: 1
-
   lms:
-    extends: _edxapp_service
+    extends:
+      file: service-bases.yml
+      service: _webservice
     command: >
       bash -c 'source /edx/app/edxapp/edxapp_env && while true;
       do python /edx/app/edxapp/edx-platform/manage.py lms runserver
       0.0.0.0:${OPENEDX_LMS_PORT} --settings devstack_docker;
       sleep 2; done'
     depends_on:
+      - mysql
+      - devpi
+      - memcached
+      - mongo
+      - firefox
+      - chrome
       - discovery
     environment:
       BOK_CHOY_HOSTNAME: lms
@@ -120,26 +102,36 @@ services:
     volumes:
       - edxapp_lms_assets:/edx/var/edxapp/staticfiles/
 
-    studio:
-      command: >
-        bash -c 'source /edx/app/edxapp/edxapp_env && while true;
-        do python /edx/app/edxapp/edx-platform/manage.py cms
-        runserver 0.0.0.0:${OPENEDX_STUDIO_PORT} --settings devstack_docker;
-        sleep 2; done'
-      ports:
-        - "${OPENEDX_STUDIO_PORT}:${OPENEDX_STUDIO_PORT}"
-        - "19877:19877" # JS test debugging
-      volumes:
-        - edxapp_studio_assets:/edx/var/edxapp/staticfiles/
+  studio:
+    command: >
+      bash -c 'source /edx/app/edxapp/edxapp_env && while true;
+      do python /edx/app/edxapp/edx-platform/manage.py cms
+      runserver 0.0.0.0:${OPENEDX_STUDIO_PORT} --settings devstack_docker;
+      sleep 2; done'
+    depends_on:
+      - mysql
+      - devpi
+      - memcached
+      - mongo
+      - firefox
+      - chrome
+    ports:
+      - "${OPENEDX_STUDIO_PORT}:${OPENEDX_STUDIO_PORT}"
+      - "19877:19877" # JS test debugging
+    volumes:
+      - edxapp_studio_assets:/edx/var/edxapp/staticfiles/
 
   discovery:
-    extends: _webservice
+    extends:
+      file: service-bases.yml
+      service: _webservice
     command: >
       bash -c 'source /edx/app/discovery/discovery_env && while true;
       do python /edx/app/discovery/discovery/manage.py runserver
       0.0.0.0:${OPENEDX_DISCOVERY_PORT};
       sleep 2; done'
     depends_on:
+      - mysql
       - elasticsearch
       - memcached
     environment:
@@ -151,8 +143,15 @@ services:
     volumes:
       - discovery_assets:/edx/var/discovery/
 
-  _registrar_service:
-    extends: _webservice
+  registrar:
+    extends:
+      file: service-bases.yml
+      service: _webservice
+    command: >
+      bash -c 'source /edx/app/registrar/registrar_env && while true;
+      do python /edx/app/registrar/registrar/manage.py runserver
+      0.0.0.0:${OPENEDX_REGISTRAR_PORT};
+      sleep 2; done'
     environment:
       DB_HOST: mysql
       DB_NAME: registrar
@@ -170,15 +169,8 @@ services:
     image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
     volumes:
       - /edx/var/registrar/
-
-  registrar:
-    extends: _registrar_service
-    command: >
-      bash -c 'source /edx/app/registrar/registrar_env && while true;
-      do python /edx/app/registrar/registrar/manage.py runserver
-      0.0.0.0:${OPENEDX_REGISTRAR_PORT};
-      sleep 2; done'
     depends_on:
+      - mysql
       - lms
       - discovery
       - memcached
@@ -188,31 +180,46 @@ services:
       - "${OPENEDX_REGISTRAR_PORT}:${OPENEDX_REGISTRAR_PORT}"
 
   registrar-worker:
-    extends: _registrar_service
+    extends:
+      file: service-bases.yml
+      service: _registrar_service
     command: >
       bash -c 'source /edx/app/registrar/registrar_env && while
       cd /edx/app/registrar/registrar && while true;
       celery -A registrar worker -l debug -c 2;
       sleep 2; done'
+    environment:
+      DB_HOST: mysql
+      DB_NAME: registrar
+      DB_PORT: ${OPENEDX_MYSQL_PORT}
+      DB_USER: registrar001
+      DB_PASSWORD: password
+      LMS_HOST: http://localhost:${OPENEDX_LMS_PORT}
+      MEMCACHE_HOST: memcached
+      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
+      CELERY_ALWAYS_EAGER: 'false'
+      CELERY_BROKER_TRANSPORT: redis
+      CELERY_BROKER_HOSTNAME: redis:${OPENEDX_REDIS_PORT}
+      CELERY_BROKER_VHOST: 10
+      CELERY_BROKER_PASSWORD: password
+    image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
+    volumes:
+      - /edx/var/registrar/
     depends_on:
+      - mysql
       - lms
       - redis
     ports:
       - "${OPENEDX_REGISTRAR_WORKER_PORT}:${OPENEDX_REGISTRAR_WORKER_PORT}"
 
-
   ###################################################
   # EDX MICROFRONTENDS
   ###################################################
 
-  _microfrontend:
-    command: bash -c 'npm install && npm run start'
-    image: node:10
-    environment:
-      - NODE_ENV=development
-
   program-manager:
-    extends: _microfrontend
+    extends:
+      file: service-bases.yml
+      service: _microfrontend
     working_dir: '/edx/app/program-manager'
     ports:
       - "${OPENEDX_PROGRAM_MANAGER_PORT}:${OPENEDX_PROGRAM_MANAGER_PORT}"
