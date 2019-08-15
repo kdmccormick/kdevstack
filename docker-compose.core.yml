@@ -15,8 +15,8 @@ services:
     ports:
       - "${OPENEDX_CHROME_PORT}:${OPENEDX_CHROME_PORT}"
     volumes:  # for file uploads
-      - edx-e2e-tests/upload_files:/edx/app/e2e/edx-e2e-tests/upload_files
-      - edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
+      - ../edx-e2e-tests/upload_files:/edx/app/e2e/edx-e2e-tests/upload_files
+      - ../edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
 
   devpi:
     image: edxops/devpi:${OPENEDX_IMAGE_VERSION}
@@ -37,8 +37,8 @@ services:
     ports:
       - "${OPENEDX_FIREFOX_PORT}:${OPENEDX_FIREFOX_PORT}"
     volumes:  # for file uploads
-      - edx-e2e-tests/upload_files:/edx/app/e2e/edx-e2e-tests/upload_files
-      - edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
+      - ../edx-e2e-tests/upload_files:/edx/app/e2e/edx-e2e-tests/upload_files
+      - ../edx-platform/common/test/data:/edx/app/edxapp/edx-platform/common/test/data
 
   memcached:
     image: memcached:1.4.24
@@ -76,7 +76,7 @@ services:
   lms:
     extends:
       file: service-bases.yml
-      service: _webservice
+      service: _edxapp_service
     command: >
       bash -c 'source /edx/app/edxapp/edxapp_env && while true;
       do python /edx/app/edxapp/edx-platform/manage.py lms runserver
@@ -103,6 +103,9 @@ services:
       - edxapp_lms_assets:/edx/var/edxapp/staticfiles/
 
   studio:
+    extends:
+      file: service-bases.yml
+      service: _edxapp_service
     command: >
       bash -c 'source /edx/app/edxapp/edxapp_env && while true;
       do python /edx/app/edxapp/edx-platform/manage.py cms
@@ -146,29 +149,12 @@ services:
   registrar:
     extends:
       file: service-bases.yml
-      service: _webservice
+      service: _registrar_service
     command: >
       bash -c 'source /edx/app/registrar/registrar_env && while true;
       do python /edx/app/registrar/registrar/manage.py runserver
       0.0.0.0:${OPENEDX_REGISTRAR_PORT};
       sleep 2; done'
-    environment:
-      DB_HOST: mysql
-      DB_NAME: registrar
-      DB_PORT: ${OPENEDX_MYSQL_PORT}
-      DB_USER: registrar001
-      DB_PASSWORD: password
-      LMS_HOST: http://localhost:${OPENEDX_LMS_PORT}
-      MEMCACHE_HOST: memcached
-      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
-      CELERY_ALWAYS_EAGER: 'false'
-      CELERY_BROKER_TRANSPORT: redis
-      CELERY_BROKER_HOSTNAME: redis:${OPENEDX_REDIS_PORT}
-      CELERY_BROKER_VHOST: 10
-      CELERY_BROKER_PASSWORD: password
-    image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
-    volumes:
-      - /edx/var/registrar/
     depends_on:
       - mysql
       - lms
@@ -188,23 +174,6 @@ services:
       cd /edx/app/registrar/registrar && while true;
       celery -A registrar worker -l debug -c 2;
       sleep 2; done'
-    environment:
-      DB_HOST: mysql
-      DB_NAME: registrar
-      DB_PORT: ${OPENEDX_MYSQL_PORT}
-      DB_USER: registrar001
-      DB_PASSWORD: password
-      LMS_HOST: http://localhost:${OPENEDX_LMS_PORT}
-      MEMCACHE_HOST: memcached
-      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
-      CELERY_ALWAYS_EAGER: 'false'
-      CELERY_BROKER_TRANSPORT: redis
-      CELERY_BROKER_HOSTNAME: redis:${OPENEDX_REDIS_PORT}
-      CELERY_BROKER_VHOST: 10
-      CELERY_BROKER_PASSWORD: password
-    image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
-    volumes:
-      - /edx/var/registrar/
     depends_on:
       - mysql
       - lms

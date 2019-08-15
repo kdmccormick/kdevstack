@@ -22,6 +22,25 @@ services:
       EDXAPP_TEST_MONGO_HOST: mongo
       NO_PYTHON_UNINSTALL: 1
 
+  _registrar_service:
+    environment:
+      DB_HOST: mysql
+      DB_NAME: registrar
+      DB_PORT: ${OPENEDX_MYSQL_PORT}
+      DB_USER: registrar001
+      DB_PASSWORD: password
+      LMS_HOST: http://localhost:${OPENEDX_LMS_PORT}
+      MEMCACHE_HOST: memcached
+      DJANGO_SETTINGS_MODULE: registrar.settings.devstack
+      CELERY_ALWAYS_EAGER: 'false'
+      CELERY_BROKER_TRANSPORT: redis
+      CELERY_BROKER_HOSTNAME: redis:${OPENEDX_REDIS_PORT}
+      CELERY_BROKER_VHOST: 10
+      CELERY_BROKER_PASSWORD: password
+    image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
+    volumes:
+      - /edx/var/registrar/
+
   _microfrontend:
     command: bash -c 'npm install && npm run start'
     image: node:10
