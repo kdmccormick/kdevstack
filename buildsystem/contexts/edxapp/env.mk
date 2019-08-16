@@ -1,0 +1,2 @@
+MODSTACK_BUILD_IDA=edxapp
+MODSTACK_BUILD_REPO=edx-platform
