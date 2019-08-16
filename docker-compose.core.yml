@@ -39,6 +39,8 @@ services:
 
   memcached:
     image: memcached:1.4.24
+    ports:
+      - "${OPENEDX_MEMCACHED_PORT}:${OPENEDX_MEMCACHED_PORT}"
 
   mongo:
     # We use WiredTiger in all environments. In development environments we use
@@ -50,6 +52,8 @@ services:
     image: mongo:3.2.16
     volumes:
       - mongo_data:/data/db
+    ports:
+      - "${OPENEDX_MONGO_PORT}:${OPENEDX_MONGO_PORT}"
 
   mysql:
     command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
@@ -59,6 +63,8 @@ services:
     image: mysql:5.6
     volumes:
       - mysql_data:/var/lib/mysql
+    ports:
+      - "${OPENEDX_MYSQL_PORT}:${OPENEDX_MYSQL_PORT}"
 
   redis:
     image: redis:2.8
