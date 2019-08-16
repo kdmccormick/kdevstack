@@ -131,7 +131,7 @@ services:
     environment:
       TEST_ELASTICSEARCH_URL: "http://elasticsearch:${OPENEDX_ELASTICSEARCH_PORT}"
       ENABLE_DJANGO_TOOLBAR: 1
-    image: edxops/discovery:${OPENEDX_IMAGE_VERSION}
+    image: kdmccormick96/edx-discovery:${OPENEDX_IMAGE_VERSION}
     ports:
       - "${OPENEDX_DISCOVERY_PORT}:${OPENEDX_DISCOVERY_PORT}"
     volumes:

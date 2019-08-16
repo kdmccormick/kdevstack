@@ -1,0 +1,2 @@
+MODSTACK_BUILD_IDA=discovery
+MODSTACK_BUILD_REPO=course-discovery

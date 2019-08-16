@@ -14,7 +14,7 @@ services:
 
   _edxapp_service:
     extends: _webservice
-    image: edxops/edxapp:${OPENEDX_IMAGE_VERSION}
+    image: kdmccormick96/edx-edxapp:${OPENEDX_IMAGE_VERSION}
     environment:
       BOK_CHOY_HOSTNAME: studio
       BOK_CHOY_LMS_PORT: 18103
@@ -38,7 +38,7 @@ services:
       CELERY_BROKER_HOSTNAME: redis:${OPENEDX_REDIS_PORT}
       CELERY_BROKER_VHOST: 10
       CELERY_BROKER_PASSWORD: password
-    image: edxops/registrar:${OPENEDX_IMAGE_VERSION}
+    image: kdmccormick96/edx-registrar:${OPENEDX_IMAGE_VERSION}
     volumes:
       - /edx/var/registrar/
 

@@ -1,5 +1,5 @@
 
-RELEASE_IDAS = release-edxapp release-registrar
+RELEASE_IDAS = release-edxapp release-discovery release-registrar
 
 .PHONY: all release-% build-% push-% context-% clean-% clean
 
