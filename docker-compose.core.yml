@@ -1,6 +1,3 @@
-# This file contains all of the services for an edX installation. See https://docs.docker.com/compose/compose-file/
-# for the appropriate syntax and definitions.
-
 version: "2.1"
 
 services:

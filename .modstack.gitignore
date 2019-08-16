@@ -1,4 +1,7 @@
-# modsta
+# This file should be pasted into the .gitignores of all 
+# repos that will use modstack
+
+# ignores for modstack
 
 docker-compose.yml
 service-bases.yml
