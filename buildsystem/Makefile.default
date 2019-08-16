@@ -19,13 +19,11 @@ push:
 	docker push $(IMAGE)
 
 .PHONY: pull_master
-pull_master: repo/
-	cd repo/$(REPO) && git pull
+pull_master: $(REPO)
+	cd $(REPO) && git pull
 
-repo/:
-	rm -rf repo
-	mkdir repo
-	cd repo && \
+$(REPO):
+	rm -rf $(REPO)
 	git clone --single-branch \
 	          --branch $(BRANCH) \
 	          --config core.symlinks=true \
