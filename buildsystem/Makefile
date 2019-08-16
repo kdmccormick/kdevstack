@@ -1,5 +1,7 @@
 
 RELEASE_IDAS = release-edxapp release-discovery release-registrar
+BUILD_DIR=buildcontexts
+IDA_DIR=idas
 
 .PHONY: all release-% build-% push-% context-% clean-% clean
 
@@ -11,19 +13,12 @@ release-%: build-%
 build-%: context-%
 	cd contexts/$* && $(MAKE) build
 
-context-%:
-	mkdir -p contexts/$*
-	cp $*/* contexts/$*/
-	if [ ! -f $*/Makefile ]; then \
-		cp Makefile.default contexts/$*/Makefile; \
-	fi
-	if [ ! -f $*/Dockerfile ]; then \
-		cp Dockerfile.default contexts/$*/Dockerfile; \
-	fi
+config-%:
+	./generate-buildcontext.sh $(IDA_DIR) $(BUILD_DIR) $*
 
 clean-%:
-	rm -rf contexts/$*
+	rm -rf $(BUILD_DIR)/$*
 
 clean:
-	rm -rf contexts
+	rm -rf $(BUILD_DIR)
 
