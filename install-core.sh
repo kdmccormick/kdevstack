@@ -3,7 +3,7 @@
 # you want to install modstack
 
 DEFAULT_ROOT=https://raw.githubusercontent.com/kdmccormick/modstack/master
-ROOT=${MODSTACK_URL:-DEFAULT_ROOT}
+ROOT=${MODSTACK_URL:-$DEFAULT_ROOT}
 
 curl $ROOT/.env > .env
 echo >> .env
