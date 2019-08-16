@@ -1,0 +1,6 @@
+# modsta
+
+docker-compose.yml
+service-bases.yml
+.env
+.override.env
