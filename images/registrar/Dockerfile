@@ -1,0 +1,9 @@
+ARG IDA
+ARG IMG=edxops/$IDA
+FROM $IMG
+
+ARG IDA
+ARG REPO=$IDA
+
+WORKDIR /edx/app/$IDA
+COPY repo/$REPO $REPO

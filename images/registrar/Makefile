@@ -4,14 +4,16 @@ MODSTACK_BUILD_IDA=registrar
 IDA=$(MODSTACK_BUILD_IDA)
 REPO=$(or $(MODSTACK_BUILD_REPO),$(IDA))
 BRANCH=$(or $(MODSTACK_BUILD_BRANCH),master)
-IMG_PREFIX=$(or $(MODSTACK_BUILD_IMAGE_PREFIX), kdmccormick/edx-)
+IMAGE_PREFIX=$(or $(MODSTACK_BUILD_IMAGE_PREFIX), kdmccormick/edx-)
 REPO_ROOT=$(or $(MODSTACK_BUILD_REPO_ROOT), https://github.com/edx)
+IMAGE=$(IMAGE_PREFIX)$(IDA)
 
-.PHONY: image pull_master
+.PHONY: run image pull_master
 
 image: pull_master
-	docker build . -t $(IMG_PREFIX)$(IDA) \
-	               --build-arg IDA=$(IDA)
+	docker build . -t $(IMAGE) \
+	               --build-arg IDA=$(IDA) \
+	               --build-arg REPO=$(REPO)
 
 pull_master: repo/
 	cd repo/$(REPO) && git pull
@@ -25,3 +27,18 @@ repo/:
 	          --config core.symlinks=true \
 	          --depth=1 \
 	          $(REPO_ROOT)/$(REPO).git
+
+
+# For testing only
+
+CONTAINER=$(IDA)
+
+up:
+	docker run -d --name $(CONTAINER) $(IMAGE)
+
+shell:
+	docker exec -it $(CONTAINER) /bin/bash
+
+down:
+	docker stop $(CONTAINER)
+	docker rm $(CONTAINER)
