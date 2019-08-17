@@ -4,7 +4,7 @@ IDA=$1
 IMAGE=$2
 
 IDA_PATH=idas/$IDA
-IMAGE_PATH=$IDA_PATH/$IMAGE_PATH
+IMAGE_PATH=$IDA_PATH/$IMAGE
 
 . ./buildsystem.env
 . $IDA_PATH/ida.env

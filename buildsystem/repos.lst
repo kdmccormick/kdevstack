@@ -1,0 +1,7 @@
+# Format of each line should be: BRANCH URL DEST_FOLDER.
+# Blank lines or with the first chacter as '#' are ignored.
+# Inline comments do not work.
+
+master https://github.com/edx/edx-platform.git edx-platform
+master https://github.com/edx/course-discovery.git discovery
+master https://github.com/edx/registrar.git registrar

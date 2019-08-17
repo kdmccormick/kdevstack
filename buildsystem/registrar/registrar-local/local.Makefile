@@ -11,7 +11,7 @@ REPO_PATH=$(BUILDCONTEXT_PATH)/$(REPO_NAME)
 BUILDCONTEXT_PATH=./build
 
 .PHONY: build
-build:
+build: pull_master
 	cd $(BUILDCONTEXT_PATH) && \
 	docker build . -t $(IMAGE_TAG) \
 	               --build-arg IDA=$(IDA) \
@@ -20,9 +20,6 @@ build:
 .PHONY: push
 push:
 	docker push $(IMAGE_TAG)
-
-.PHONY: prep
-prep: pull_master
 
 .PHONY: pull_master
 pull_master: $(REPO_PATH)

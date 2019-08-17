@@ -4,7 +4,7 @@ IDA=$1
 IMAGE=$2
 PUSH=${3:-nopush}
 
-IDA_PATH=idas/$IDA
+IDA_PATH=repo/$IDA
 IMAGE_PATH=$IDA_PATH/$IMAGE_PATH
 
 . ./buildsystem.env
