@@ -1,7 +1,7 @@
-# Format of each line should be: BRANCH URL DEST_FOLDER.
+# Format of each line should be: REPO_URL BRANCH DEST_FOLDER_NAME.
 # Blank lines or with the first chacter as '#' are ignored.
 # Inline comments do not work.
 
-master https://github.com/edx/edx-platform.git edx-platform
-master https://github.com/edx/course-discovery.git discovery
-master https://github.com/edx/registrar.git registrar
+https://github.com/edx/edx-platform.git master edx-platform
+https://github.com/edx/course-discovery.git master discovery
+https://github.com/edx/registrar.git master registrar
